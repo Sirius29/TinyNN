@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+using namespace tinynn;
+
 int ReverseInt(int i)
 {
 	int ch1, ch2, ch3, ch4;
@@ -41,12 +43,12 @@ int ReadImages(std::string &file_name, std::vector<Tensor> &set)
 
 	set.resize(number);
 	// set = std::vector<Tensor>(number, {height, width, 1, sizeof(char)});
-	std::cout<<set.capacity()<<std::endl;
+	std::cout << set.capacity() << std::endl;
 	char val = 0;
 	int total = height * width;
-	for(int i = 0; i < number; ++i)
+	for (int i = 0; i < number; ++i)
 	{
-		Tensor t(height, width, 1, sizeof(char));
+		Tensor t(Size(height, width, 1), sizeof(char));
 		ifile.read(t.GetData<char>(), total * sizeof(char));
 		set[i] = std::move(t);
 	}
@@ -86,17 +88,21 @@ int main()
 
 	std::vector<Tensor> train_set, test_set;
 	// std::vector<int>
-	ReadImages(train_img, train_set);
+	if (ReadImages(train_img, train_set) != 0)
+	{
+		std::cout << "ReadImages fail." << std::endl;
+		return -1;
+	}
 
 	unsigned char *p = train_set[5].GetData<unsigned char>();
-	for(int i = 0; i < 28; ++i)
+	for (int i = 0; i < 28; ++i)
 	{
-		for(int j = 0; j < 28; ++j)
+		for (int j = 0; j < 28; ++j)
 		{
 			int idx = i * 28 + j;
 			printf("%4d ", p[idx]);
 		}
-		std::cout<<std::endl;
+		std::cout << std::endl;
 	}
 
 	return 0;

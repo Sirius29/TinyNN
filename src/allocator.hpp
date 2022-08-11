@@ -2,34 +2,38 @@
 #define TINYNN_ALLOCATOR_H_
 
 #include <memory>
+#include <stddef.h>
 
-void *Malloc(size_t size);
-
-void Free(void *p);
-
-class Allocator
+namespace tinynn
 {
-public:
-    virtual ~Allocator();
-    virtual void *Malloc(size_t size) = 0;
-    virtual void Free(void *ptr) = 0;
-};
+    void *Malloc(size_t size);
 
-class GeneralAlloc : public Allocator
-{
-public:
-    GeneralAlloc() {}
-    ~GeneralAlloc() {}
-    void *Malloc(size_t size)
-    {
-        void *p = malloc(size);
-        return p;
-    }
+    void Free(void *p);
 
-    void Free(void *p)
+    class Allocator
     {
-        free(p);
-    }
-};
+    public:
+        virtual ~Allocator();
+        virtual void *Malloc(size_t size) = 0;
+        virtual void Free(void *ptr) = 0;
+    };
+
+    class GeneralAlloc : public Allocator
+    {
+    public:
+        GeneralAlloc() {}
+        ~GeneralAlloc() {}
+        void *Malloc(size_t size)
+        {
+            void *p = malloc(size);
+            return p;
+        }
+
+        void Free(void *p)
+        {
+            free(p);
+        }
+    };
+}
 
 #endif

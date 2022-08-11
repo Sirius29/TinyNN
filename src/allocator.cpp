@@ -1,12 +1,15 @@
 #include "allocator.hpp"
 
-void *Malloc(size_t size)
+namespace tinynn
 {
-    void *p = malloc(size);
-    return p;
-}
+    void *Malloc(size_t size)
+    {
+        void *p = malloc(size);
+        return p;
+    }
 
-void Free(void *p)
-{
-    free(p);
+    void Free(void *p)
+    {
+        free(p);
+    }
 }
