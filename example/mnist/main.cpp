@@ -1,4 +1,4 @@
-#include "tensor.hpp"
+#include "model.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -42,14 +42,21 @@ int ReadImages(std::string &file_name, std::vector<Tensor> &set)
 	std::cout << "height x width is " << height << " x " << width << std::endl;
 
 	set.resize(number);
-	// set = std::vector<Tensor>(number, {height, width, 1, sizeof(char)});
-	std::cout << set.capacity() << std::endl;
 	char val = 0;
 	int total = height * width;
 	for (int i = 0; i < number; ++i)
 	{
-		Tensor t(Size(height, width, 1), sizeof(char));
-		ifile.read(t.GetData<char>(), total * sizeof(char));
+		// Tensor t(Size(height, width, 1), sizeof(char));
+		// ifile.read(t.GetData<char>(), total * sizeof(char));
+		// set[i] = std::move(t);
+
+		Tensor t(Size(1, total, 1));
+		float *p_data = t.GetData<float>();
+		for (int j = 0; j < total; ++j)
+		{
+			ifile.read(&val, sizeof(char));
+			p_data[j] = static_cast<float>(val);
+		}
 		set[i] = std::move(t);
 	}
 
@@ -58,7 +65,7 @@ int ReadImages(std::string &file_name, std::vector<Tensor> &set)
 	return 0;
 }
 
-int ReadIabels(std::string &file_name)
+int ReadIabels(std::string &file_name, std::vector<Tensor> &set)
 {
 	std::ifstream ifile;
 	ifile.open(file_name.c_str(), std::ios::in | std::ios::binary);
@@ -75,6 +82,26 @@ int ReadIabels(std::string &file_name)
 	std::cout << "magic_num is " << magic_num << std::endl;
 	std::cout << "number of images is " << number << std::endl;
 
+	set.resize(number);
+	char val = 0;
+	int height = 1, width = 10;
+	int total = height * width;
+	for (int i = 0; i < number; ++i)
+	{
+		// Tensor t(Size(height, width, 1), sizeof(char));
+		// ifile.read(t.GetData<char>(), total * sizeof(char));
+		// set[i] = std::move(t);
+
+		Tensor t(Size(1, total, 1));
+		float *p_data = t.GetData<float>();
+		for (int j = 0; j < total; ++j)
+		{
+			ifile.read(&val, sizeof(char));
+			p_data[j] = static_cast<float>(val);
+		}
+		set[i] = std::move(t);
+	}
+
 	ifile.close();
 	return 0;
 }
@@ -82,28 +109,55 @@ int ReadIabels(std::string &file_name)
 int main()
 {
 	std::string train_img = "train-images.idx3-ubyte";
-	std::string train_lab = "train-labels.idx1-ubyte";
+	std::string train_label = "train-labels.idx1-ubyte";
 	std::string test_img = "t10k-images.idx3-ubyte";
-	std::string test_lab = "t10k-labels.idx1-ubyte";
+	std::string test_label = "t10k-labels.idx1-ubyte";
 
 	std::vector<Tensor> train_set, test_set;
-	// std::vector<int>
+	std::vector<Tensor> train_target, test_target;
 	if (ReadImages(train_img, train_set) != 0)
 	{
 		std::cout << "ReadImages fail." << std::endl;
 		return -1;
 	}
 
-	unsigned char *p = train_set[5].GetData<unsigned char>();
-	for (int i = 0; i < 28; ++i)
+	if (ReadImages(test_img, test_set) != 0)
 	{
-		for (int j = 0; j < 28; ++j)
-		{
-			int idx = i * 28 + j;
-			printf("%4d ", p[idx]);
-		}
-		std::cout << std::endl;
+		std::cout << "ReadImages fail." << std::endl;
+		return -1;
 	}
+
+	if (ReadIabels(train_label, train_target) != 0)
+	{
+		std::cout << "ReadIabels fail." << std::endl;
+		return -1;
+	}
+
+	if (ReadIabels(test_label, test_target) != 0)
+	{
+		std::cout << "ReadIabels fail." << std::endl;
+		return -1;
+	}
+
+	std::unique_ptr<Initializer> p_normal = std::make_unique<Normal>();
+	std::unique_ptr<Initializer> p_zero = std::make_unique<Zeros>();
+
+	Model model;
+	model.loss_func = std::make_unique<MSE>();
+	model.optim = std::make_unique<SGD>();
+	model.net.layers.emplace_back(std::make_unique<Dense>(200, p_normal.get(), p_zero.get()));
+	// model.net.layers.emplace_back(std::make_unique<ReLU>());
+	// model.net.layers.emplace_back(std::make_unique<Dense>(100, p_normal.get(), p_zero.get()));
+	// model.net.layers.emplace_back(std::make_unique<ReLU>());
+	// model.net.layers.emplace_back(std::make_unique<Dense>(70, p_normal.get(), p_zero.get()));
+	// model.net.layers.emplace_back(std::make_unique<ReLU>());
+	// model.net.layers.emplace_back(std::make_unique<Dense>(30, p_normal.get(), p_zero.get()));
+	// model.net.layers.emplace_back(std::make_unique<ReLU>());
+	// model.net.layers.emplace_back(std::make_unique<Dense>(10, p_normal.get(), p_zero.get()));
+
+	Tensor out = model.Forward(train_set[0]);
+	std::cout << out.GetSize() << std::endl;
+	// for (int i = 0; i <)
 
 	return 0;
 }

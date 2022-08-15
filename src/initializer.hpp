@@ -9,7 +9,6 @@ namespace tinynn
     class Initializer
     {
     public:
-        Initializer() {}
         virtual ~Initializer() {}
         virtual Tensor Init(Size size) = 0;
     };
@@ -18,7 +17,7 @@ namespace tinynn
     {
     public:
         Normal(float _mean = 0.f, float _std = 1.f) : distribution(_mean, _std) {}
-        Tensor Init(Size size)
+        Tensor Init(Size size) override
         {
             Tensor t(size);
             float *p_data = t.GetData<float>();
@@ -38,7 +37,7 @@ namespace tinynn
     {
     public:
         TruncatedNormal(float _low, float _high, float _mean = 0.f, float _std = 1.f) : low(_low), high(_high), distribution(_mean, _std) {}
-        Tensor Init(Size size)
+        Tensor Init(Size size) override
         {
             Tensor t(size);
             float *p_data = t.GetData<float>();
@@ -69,7 +68,7 @@ namespace tinynn
     {
     public:
         Uniform(float a = 0.f, float b = 1.f) : distribution(a, b) {}
-        Tensor Init(Size size)
+        Tensor Init(Size size) override
         {
             Tensor t(size);
             float *p_data = t.GetData<float>();
@@ -89,7 +88,7 @@ namespace tinynn
     {
     public:
         Constant(float _val) : val(_val) {}
-        Tensor Init(Size size)
+        Tensor Init(Size size) override
         {
             Tensor t(size);
             float *p_data = t.GetData<float>();

@@ -2,6 +2,7 @@
 #define TINYNN_TENSER_H_
 
 #include "allocator.hpp"
+#include <iostream>
 #include <cstdlib>
 #include <vector>
 #include <string.h>
@@ -24,6 +25,12 @@ namespace tinynn
         bool operator!=(const Size &size)
         {
             return !(*this == size);
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const Size &size)
+        {
+            os << "h x w x c : " << size.h << " x " << size.w << " x " << size.c;
+            return os;
         }
 
         int h;
@@ -70,6 +77,7 @@ namespace tinynn
             }
 
             size = Size();
+            element_size = 0;
         }
 
         Tensor(const Tensor &t)
@@ -152,10 +160,11 @@ namespace tinynn
                 for (int j = 0; j < size.h; ++j)
                 {
                     Tp *p_this = this->GetRow<Tp>(j);
-                    for (int k = 0; k < size.c; ++k)
-                    {
-                        p_out[j + k] = p_this[i + k];
-                    }
+                    p_out[j] = p_this[i];
+                    // for (int k = 0; k < size.c; ++k) // channel todo
+                    // {
+                    //     p_out[j + k] = p_this[i + k];
+                    // }
                 }
             }
             return out;
@@ -177,13 +186,13 @@ namespace tinynn
         }
 
         template <typename Tp>
-        Tp *GetData()
+        Tp *GetData() const
         {
             return reinterpret_cast<Tp *>(data);
         }
 
         template <typename Tp>
-        Tp *GetRow(int row)
+        Tp *GetRow(int row) const
         {
             int offset = row * size.w * size.c;
             return reinterpret_cast<Tp *>(reinterpret_cast<char *>(data) + offset);
@@ -196,10 +205,10 @@ namespace tinynn
         Allocator *allocator;
     };
 
-    template <typename Tp>
+    // template <typename Tp>
     Tensor Dot(const Tensor &a, const Tensor &b);
 
-    template <typename Tp>
+    // template <typename Tp>
     Tensor Add(const Tensor &a, const Tensor &b);
 }
 

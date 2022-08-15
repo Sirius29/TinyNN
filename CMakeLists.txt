@@ -8,6 +8,11 @@ set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_COMPILE_FEATURES -std=c++14)
+add_compile_options("-fno-rtti")
+
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 add_subdirectory(src)
 add_subdirectory(example)

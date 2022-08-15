@@ -5,17 +5,29 @@
 
 namespace tinynn
 {
-    class Loss
+    template <typename Tp>
+    inline Tp Sign(Tp val);
+
+    class LossFunc
     {
     public:
-        virtual ~Loss() {}
-        virtual Tensor Forward(const Tensor &pred, const Tensor &labal) = 0;
-        virtual Tensor Backward(const Tensor &pred, const Tensor &labal) = 0;
+        virtual ~LossFunc() {}
+        virtual float ComputeLoss(const Tensor &pred, const Tensor &target) = 0;
+        virtual Tensor Grad(const Tensor &pred, const Tensor &target) = 0;
     };
 
-    class MSE : public Loss
+    class MSE : public LossFunc
     {
     public:
+        float ComputeLoss(const Tensor &pred, const Tensor &target) override;
+        Tensor Grad(const Tensor &pred, const Tensor &target) override;
+    };
+
+    class MAE : public LossFunc
+    {
+    public:
+        float ComputeLoss(const Tensor &pred, const Tensor &target) override;
+        Tensor Grad(const Tensor &pred, const Tensor &target) override;
     };
 }
 

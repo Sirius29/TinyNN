@@ -3,7 +3,6 @@
 
 namespace tinynn
 {
-    template <typename Tp>
     Tensor Dot(const Tensor &a, const Tensor &b)
     {
         Size a_size = a.GetSize();
@@ -17,14 +16,14 @@ namespace tinynn
         Tensor out(Size(a_size.h, b_size.w, 1));
         for (int i = 0; i < a_size.h; ++i)
         {
-            Tp *p_a = a.GetRow<Tp>(i);
-            Tp *p_out = out.GetRow<Tp>(i);
+            float *p_a = a.GetRow<float>(i);
+            float *p_out = out.GetRow<float>(i);
             for (int j = 0; j < b_size.w; ++j)
             {
-                Tp sum = 0;
+                float sum = 0;
                 for (int k = 0; k < a_size.w; ++k)
                 {
-                    Tp *p_b = b.GetRow<Tp>(k);
+                    float *p_b = b.GetRow<float>(k);
                     sum += p_a[k] * p_b[j];
                 }
                 p_out[j] = sum;
@@ -34,7 +33,6 @@ namespace tinynn
         return out;
     }
 
-    template <typename Tp>
     Tensor Add(const Tensor &a, const Tensor &b)
     {
         Size a_size = a.GetSize();
@@ -48,9 +46,9 @@ namespace tinynn
         Tensor out(a_size);
         for (int i = 0; i < a_size.h; ++i)
         {
-            Tp *p_a = a.GetRow<Tp>(i);
-            Tp *p_out = out.GetRow<Tp>(i);
-            Tp *p_b = b.GetRow<Tp>(i);
+            float *p_a = a.GetRow<float>(i);
+            float *p_out = out.GetRow<float>(i);
+            float *p_b = b.GetRow<float>(i);
             for (int j = 0; j < b_size.w; ++j)
             {
                 p_out[j] = p_a[j] + p_b[j];

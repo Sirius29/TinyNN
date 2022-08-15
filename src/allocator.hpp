@@ -2,12 +2,10 @@
 #define TINYNN_ALLOCATOR_H_
 
 #include <memory>
-#include <stddef.h>
 
 namespace tinynn
 {
     void *Malloc(size_t size);
-
     void Free(void *p);
 
     class Allocator
@@ -23,13 +21,13 @@ namespace tinynn
     public:
         GeneralAlloc() {}
         ~GeneralAlloc() {}
-        void *Malloc(size_t size)
+        void *Malloc(size_t size) override
         {
             void *p = malloc(size);
             return p;
         }
 
-        void Free(void *p)
+        void Free(void *p) override
         {
             free(p);
         }
